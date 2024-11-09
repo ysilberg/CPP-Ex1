@@ -70,13 +70,13 @@ jobs:
       - name: Build Part1Tester
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          g++ part1/queue/Part1Tester.cpp -o Part1Tester
+          g++ part1/queue/Queue.cpp part1/queue/Part1Tester.cpp -o Part1Tester
           chmod +x Part1Tester
 
       - name: Build Part2Tester
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          g++ part2/Part2Tester.cpp -o Part2Tester
+          g++ part2/stack/Stack.cpp part2/stack/LinkedList.cpp part2/utils/Utils.cpp part2/Part2Tester.cpp -o Part2Tester
           chmod +x Part2Tester
 
       - name: Cache compiled files
