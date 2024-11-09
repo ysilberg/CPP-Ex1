@@ -20,4 +20,4 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
-queue
+queue/queue
