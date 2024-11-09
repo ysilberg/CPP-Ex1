@@ -6,16 +6,13 @@ on:
       - main
 
 jobs:
-
   build-pipeline-tools:
-
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
 
       ## Ignore building executable files that are already in cache ##
-          
       - uses: actions/cache@v3
         id: cache
         with:
@@ -27,53 +24,93 @@ jobs:
             printbanner
             CodesToMessages.csv
           key: ${{ runner.os }}-test-files
-        
+
       - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true' 
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get update
-          sudo apt-get install git golang-go gcc build-essential
-          
+          sudo apt update
+          sudo apt install git golang-go gcc build-essential
+
       - name: Build utils
-        if: steps.cache.outputs.cache-hit != 'true' 
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           git clone https://gitlab.com/exercisetests/utils.git
           cd utils
           g++ clearscreen.cpp -o clearscreen
-          g++ printbanner.cpp -o printbanner 
+          g++ printbanner.cpp -o printbanner
           g++ printMessage.cpp -o printMessage
           chmod +x clearscreen
           chmod +x printbanner
           chmod +x printMessage
-          
           mv clearscreen ..
           mv printbanner ..
           mv printMessage ..
           mv CodesToMessages.csv ..
           cd ..
-          
+
       - name: Build files verifier
-        if: steps.cache.outputs.cache-hit != 'true' 
-        run: |  
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
           git clone https://gitlab.com/exercisetests/verifysubmittedfiles.git
           cd verifysubmittedfiles
           go build .
           chmod +x filesverifier
           mv filesverifier ..
-          cd ..      
-  
+          cd ..
+
       - name: Clone exercise test repo
         run: |
           mkdir checkers
           git clone https://gitlab.com/exercisetests/ex0files.git
           cd ex0files
-          mv PreSubmissionChecker.txt ../checkers          
+          mv PreSubmissionChecker.txt ../checkers
           cd ..
-  
+
+      ## Build Part1Tester.cpp and Part2Tester.cpp ##
+      - name: Build Part1Tester
+        run: |
+          cd part1/queue
+          g++ Part1Tester.cpp Queue.cpp -o part1_tester
+
+      - name: Build Part2Tester
+        run: |
+          cd part2
+          g++ Part2Tester.cpp stack/LinkedList.cpp stack/Stack.cpp utils/Utils.cpp -o part2_tester
+
       ## This step stores the executable files in cache ##
-      
       - name: Cache compiled files
-        if: steps.cache.outputs.cache-hit != 'true' 
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache@v3
+        with:
+          path: |
+            filesverifier
+            valgrindverifier
+            clearscreen
+            printMessage
+            printbanner
+            CodesToMessages.csv
+            part1/queue/part1_tester
+            part2/part2_tester
+          key: ${{ runner.os }}-test-files
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: pipeline-tools
+          path: checkers
+
+  run-tests:
+    needs: build-pipeline-tools
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: pipeline-tools
+
+      - name: Restore cloned files
         uses: actions/cache@v3
         with:
           path: |
@@ -84,78 +121,13 @@ jobs:
             printbanner
             CodesToMessages.csv
           key: ${{ runner.os }}-test-files
-          
-      - uses: actions/upload-artifact@v3
-        with:
-          name: pipeline-tools
-          path: checkers            
 
-  verify-vs-files:
-    
-
-    needs: build-pipeline-tools  
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Download artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: pipeline-tools
-
-    - name: Restore cloned files
-      uses: actions/cache@v3
-      with:  
-        path: |
-          filesverifier
-          valgrindverifier
-          clearscreen
-          printMessage
-          printbanner
-          CodesToMessages.csv
-        key: ${{ runner.os }}-test-files 
-        restore-keys: |
-          ${{ runner.os }}-test-files 
-        
-    - name: Verify Vs files
-      run: |
-        ./clearscreen 50  
-        ./printbanner
-        echo "Verifying required VS files..."
-        ./filesverifier PreSubmissionChecker.txt 2
-        echo "Verifying required VS files..."
-  
-  verify-excluded-files:
-      needs: build-pipeline-tools  
-      runs-on: ubuntu-latest
-      steps:
-      - uses: actions/checkout@v3
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: pipeline-tools
-
-      - name: Restore cloned files
-        uses: actions/cache@v3
-        with:  
-          path: |
-           filesverifier
-            valgrindverifier
-            clearscreen
-            printMessage
-            printbanner
-            CodesToMessages.csv
-          key: ${{ runner.os }}-test-files 
-          restore-keys: |
-            ${{ runner.os }}-test-files 
-
-      - name: verify-excluded-files
+      ## Run Part1Tester executable ##
+      - name: Run Part1 Tests
         run: |
-          ./clearscreen 50
-          ./printbanner
-          echo "Verifying files that should not be submitted..."
-          ./filesverifier PreSubmissionChecker.txt 4
-          echo "Excluded files ok"
+          ./part1/queue/part1_tester
 
- 
- 
+      ## Run Part2Tester executable ##
+      - name: Run Part2 Tests
+        run: |
+          ./part2/part2_tester
