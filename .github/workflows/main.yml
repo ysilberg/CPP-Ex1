@@ -71,11 +71,13 @@ jobs:
         run: |
           cd part1/queue
           g++ Part1Tester.cpp Queue.cpp -o part1_tester
+          ls -la 
 
       - name: Build Part2Tester
         run: |
           cd part2
           g++ Part2Tester.cpp stack/LinkedList.cpp stack/Stack.cpp utils/Utils.cpp -o part2_tester
+          ls -la 
 
       ## This step stores the executable files in cache ##
       - name: Cache compiled files
@@ -125,9 +127,9 @@ jobs:
       ## Run Part1Tester executable ##
       - name: Run Part1 Tests
         run: |
-          ./part1/queue/part1_tester
+          ./part1/queue/part1_tester || { echo "Executable not found during Part1 Tests"; exit 1; }
 
       ## Run Part2Tester executable ##
       - name: Run Part2 Tests
         run: |
-          ./part2/part2_tester
+          ./part2/part2_tester || { echo "Executable not found during Part2 Tests"; exit 1; }
