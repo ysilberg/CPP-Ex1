@@ -20,4 +20,7 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
-queue/queue
+#Binaries to ignore
+part1/queue/queue
+part2/stack/linkedList
+part2/stack/stack
