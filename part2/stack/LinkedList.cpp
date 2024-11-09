@@ -1,11 +1,13 @@
 #include "LinkedList.h"
 
 // Initializes the linked list
+//Input : list variable from Linkedlist
 void initList(LinkedList& list) {
   list.head = nullptr; // Start with an empty list
 }
 
 // Adds a new element to the top of the list
+//Input : list variable from Linkedlist, int value
 void add(LinkedList& list, int value) {
   if (value <= 0) {
     std::cout << "Only positive integers are allowed!" << std::endl;
@@ -18,6 +20,8 @@ void add(LinkedList& list, int value) {
 }
 
 // Removes the top element from the list
+//Input : list variable from Linkedlist
+//Output: True or false
 bool remove(LinkedList& list) {
   if (isEmpty(list)) {
     std::cout << "List is empty. Cannot remove element." << std::endl;
@@ -30,11 +34,14 @@ bool remove(LinkedList& list) {
 }
 
 // Checks if the list is empty
+//Input : list variable from Linkedlist
+//Output: True or false
 bool isEmpty(const LinkedList& list) {
   return list.head == nullptr;
 }
 
 // Prints all elements in the list
+//Input : list variable from Linkedlist
 void printList(const LinkedList& list) {
   if (isEmpty(list)) {
     std::cout << "List is empty." << std::endl;
@@ -50,6 +57,7 @@ void printList(const LinkedList& list) {
 }
 
 // Cleans up the list and frees all allocated memory
+//Input : list variable from Linkedlist
 void cleanList(LinkedList& list) {
   while (!isEmpty(list)) {
     remove(list);

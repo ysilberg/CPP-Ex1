@@ -1,6 +1,7 @@
 #include "LinkedList.h"
 
-int main() {
+int main() 
+{
   LinkedList list;
   initList(list);
 

@@ -4,14 +4,16 @@
 #include <iostream>
 
 // Node structure representing each element in the linked list
-struct Node {
-  int data;          // Positive integer value
-  Node* next;        // Pointer to the next node
+struct Node 
+{
+  int data;          
+  Node* next;         
 };
 
 // Linked list structure
-struct LinkedList {
-  Node* head;        // Pointer to the head (first element) of the list
+struct LinkedList 
+{
+  Node* head;        
 };
 
 // Function declarations
